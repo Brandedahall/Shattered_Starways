@@ -11,9 +11,10 @@ class Position:
 
 
 class Render:
-    def __init__(self, value, Tile):
+    def __init__(self, value, Tile, Background):
         self.value = value
         self.Tile = Tile
+        self.Background = Background
 
 # Character / 'Unit' components
 
@@ -24,8 +25,18 @@ class Name:
 
 
 class Player:
-    def __init__(self, value):
-        self.value = value
+    def __init__(self):
+        return
+
+
+class Entity:
+    def __init__(self):
+        return
+
+
+class Item:
+    def __init__(self):
+        return
 
 
 class Health:
@@ -64,8 +75,8 @@ class Alive:
 
 
 class Move_Through:
-    def __init__(self, value):
-        self.value = value
+    def __init__(self):
+        return
 
 
 class Can_See:
@@ -184,6 +195,7 @@ class Head:
 class Torso:
     def __init__(self, HP):
         self.HP = HP
+        self.Inventory = {}
 
 
 class Left_Arm:
@@ -308,6 +320,14 @@ class Damage:
         self.Amount_of_Dice = Amount_of_Dice
         self.Dice_Size = Dice_Size
 
+class Damage_Flag:
+    def __init__(self, Amount):
+        self.Amount = Amount
+
+class Attacking:
+    def __init__(self, Target_X, Target_Y):
+        self.Target_X = Target_X
+        self.Target_Y = Target_Y
 
 class Ammo_Capacity:
     def __init__(self, value):
@@ -332,3 +352,8 @@ class Number_Of_Accessories:
 class Armour_Piercing:
     def __init__(self, value):
         self.value = value
+
+
+class Scenery:
+    def __init__(self):
+        return
