@@ -75,7 +75,8 @@ class Alive:
 
 
 class Move_Through:
-    def __init__(self):
+    def __init__(self, Value):
+        self.Value = Value
         return
 
 

@@ -8,7 +8,7 @@ Health_Panel = tcod.console_new(50, 10)
 Update_Panels = True
 
 
-class Keyboard_Processor(esper.Processor):  # Works with Keyboard input
+class Movement_Processor(esper.Processor):  # Works with Keyboard input
     def process(self):
         for ent, (Player, Position, Move) in self.world.get_components(Components.Player, Components.Position,
                                                                        Components.Can_Move):
@@ -17,22 +17,30 @@ class Keyboard_Processor(esper.Processor):  # Works with Keyboard input
             tcod.console_put_char(0, Position.X, Position.Y, ' ', tcod.BKGND_NONE)
             # Four cardinal directions
             if key.vk == tcod.KEY_KP8:
-                Position.X, Position.Y = self.Pass_Through(Position, 0, -1)
+                Destination = Position.X, Position.Y - 1
+                Position.X, Position.Y = self.Collision(Position, Destination)  # UP
             elif key.vk == tcod.KEY_KP2:
-                Position.X, Position.Y = self.Pass_Through(Position, 0, 1)
+                Destination = Position.X, Position.Y + 1
+                Position.X, Position.Y = self.Collision(Position, Destination)  # Down
             elif key.vk == tcod.KEY_KP4:
-                Position.X, Position.Y = self.Pass_Through(Position, -1, 0)
+                Destination = Position.X - 1, Position.Y
+                Position.X, Position.Y = self.Collision(Position, Destination)  # Left
             elif key.vk == tcod.KEY_KP6:
-                Position.X, Position.Y = self.Pass_Through(Position, 1, 0)
+                Destination = Position.X + 1, Position.Y
+                Position.X, Position.Y = self.Collision(Position, Destination)  # Right
             # Four Diagonal directions
             elif key.vk == tcod.KEY_KP7:
-                Position.X, Position.Y = self.Pass_Through(Position, -1, -1)
+                Destination = Position.X - 1, Position.Y - 1
+                Position.X, Position.Y = self.Collision(Position, Destination)
             elif key.vk == tcod.KEY_KP9:
-                Position.X, Position.Y = self.Pass_Through(Position, 1, -1)
+                Destination = Position.X + 1, Position.Y - 1
+                Position.X, Position.Y = self.Collision(Position, Destination)
             elif key.vk == tcod.KEY_KP1:
-                Position.X, Position.Y = self.Pass_Through(Position, -1, 1)
+                Destination = Position.X - 1, Position.Y + 1
+                Position.X, Position.Y = self.Collision(Position, Destination)
             elif key.vk == tcod.KEY_KP3:
-                Position.X, Position.Y = self.Pass_Through(Position, 1, 1)
+                Destination = Position.X + 1, Position.Y + 1
+                Position.X, Position.Y = self.Collision(Position, Destination)
 
             elif key_char == "a":
                 self.Target_Control(Position)
@@ -41,17 +49,19 @@ class Keyboard_Processor(esper.Processor):  # Works with Keyboard input
             elif key.vk == tcod.KEY_SPACE:
                 return
 
-    def Pass_Through(self, Source_Position, x, y):
+    def Collision(self, Source_Position, Destination):
         for Square, Position in self.world.get_component(Components.Position):
-            if Position.X == Source_Position.X - x and Source_Position.Y == Position.Y - y:
-                if self.world.try_component(Square, Components.Move_Through):
-                    x_dest = Source_Position.X + x
-                    y_dest = Source_Position.Y + y
-                    return x_dest, y_dest
-        return Source_Position.X, Source_Position.Y
+            if Position.X == Destination[0] and Position.Y == Destination[1]:
+                if self.world.has_component(Square, Components.Move_Through):
+                    if self.world.component_for_entity(Square, Components.Move_Through):
+                        return Destination[0], Destination[1]
+                    else:
+                        return Source_Position.X, Source_Position.Y
+                else:
+                    return Source_Position.X, Source_Position.Y
 
     def Target_Control(self, Position):
-        tcod.console_put_char_ex(0, 30, 30, 'F', tcod.white, tcod.black)
+        tcod.console_put_char_ex(0, Position.x, Position.Y, 'F', tcod.white, tcod.black)
         return
 
 
@@ -127,13 +137,13 @@ class Combat_Processor(esper.Processor):
 
 def Create_Characters(world):
     # Create a Player Character
-    Player = world.create_entity(Components.Player(), Components.Position(random.randint(1, 49), random.randint(1, 40)),
+    Player = world.create_entity(Components.Player(), Components.Position(random.randint(0, 1), random.randint(0, 1)),
                                  Components.Render(True, '@', tcod.black),     # Add default parts to the PC
                                  Components.Can_Move(True), Components.Health(10), Components.Alive(True),
                                  Components.Action_Points(5), Components.Speed(5),
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
                                  Components.Left_Arm(10), Components.Left_Hand(5, True), Components.Right_Arm(10),
-                                 Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10))
+                                 Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10), Components.Move_Through(True))
 
     world.add_component(Player, Components.Inventory)
 
@@ -146,7 +156,7 @@ def Create_Characters(world):
     for x in range(0, 80):
         for y in range(0, 40):
             world.create_entity(Components.Position(x, y), Components.Render(True, '~', tcod.black),
-                                Components.Scenery(), Components.Move_Through())
+                                Components.Scenery(), Components.Move_Through(True))
 
 
 def Transfer_Inventory(Source, Destination, Item):

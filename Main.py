@@ -24,7 +24,7 @@ def run():
 
     Render_Processor = Processors.Render_Processor()
     AI_processor = Processors.AI_processor()
-    Keyboard_Processor = Processors.Keyboard_Processor()
+    Keyboard_Processor = Processors.Movement_Processor()
     Death_Processor = Processors.Death_Processor()
     Combat_Processor = Processors.Combat_Processor()
 
