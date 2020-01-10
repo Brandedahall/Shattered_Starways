@@ -23,15 +23,15 @@ def run():
     world = esper.World()
 
     Render_Processor = Processors.Render_Processor()
+    FOV_Processor = Processors.FOV_Processor()
     AI_processor = Processors.AI_processor()
     Keyboard_Processor = Processors.Movement_Processor()
-    Death_Processor = Processors.Death_Processor()
     Combat_Processor = Processors.Combat_Processor()
 
     world.add_processor(Render_Processor)
+    world.add_processor(FOV_Processor, 1)
     world.add_processor(AI_processor)
     world.add_processor(Keyboard_Processor)
-    world.add_processor(Death_Processor)
     world.add_processor(Combat_Processor)
 
     Processors.Create_Characters(world)

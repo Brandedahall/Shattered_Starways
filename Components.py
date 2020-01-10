@@ -15,6 +15,8 @@ class Render:
         self.value = value
         self.Tile = Tile
         self.Background = Background
+        self.Block_Sight = None
+        self.Explored = False
 
 # Character / 'Unit' components
 
@@ -77,17 +79,22 @@ class Alive:
 class Move_Through:
     def __init__(self, Value):
         self.Value = Value
-        return
 
 
 class Destination:
-    def __init__(self, x, y):
-        self.X = x
-        self.Y = y
+    def __init__(self):
+        self.X = 0
+        self.Y = 0
         self.Path = {}
 
 
 class Can_See:
+    def __init__(self, value):
+        self.value = value
+        self.Radius = 5
+        self.Visible_To_Player = False
+
+class Visible:
     def __init__(self, value):
         self.value = value
 
@@ -103,48 +110,45 @@ class Can_Talk:
 
 
 class Skills:
-    def __init__(self, Land_Vehicle, Air_Vehicle, Sea_Vehicle, Space_Vehicle, Battle_Suit, Computer, Medical,
-                 Engineering, Chemistry, Celestial, Local, Business, Nature, Combat, Convince, Entertain, Negotiation,
-                 Sense_Motive, Intimidate, Sneak, Climb, Athletics, Survival, Pistol, Shotgun, SubMachine_Gun, Rifle,
-                 Heavy_Weapon, Static_Weapon, Melee, Archery, Magic):
+    def __init__(self):
         # Piloting Skills
-        self.Land_Vehicle = Land_Vehicle
-        self.Air_Vehicle = Air_Vehicle
-        self.Sea_Vehicle = Sea_Vehicle
-        self.Space_Vehicle = Space_Vehicle
-        self.Battle_Suit = Battle_Suit
+        self.Land_Vehicle = 0
+        self.Air_Vehicle = 0
+        self.Sea_Vehicle = 0
+        self.Space_Vehicle = 0
+        self.Battle_Suit = 0
         # Science Skills
-        self.Computer = Computer
-        self.Medical = Medical
-        self.Engineering = Engineering
-        self.Chemistry = Chemistry
-        self.Celestial = Celestial
+        self.Computer = 0
+        self.Medical = 0
+        self.Engineering = 0
+        self.Chemistry = 0
+        self.Celestial = 0
         # Information Skills
-        self.Local = Local
-        self.Business = Business
-        self.Nature = Nature
-        self.Combat = Combat
+        self.Local = 0
+        self.Business = 0
+        self.Nature = 0
+        self.Combat = 0
         # Social Skills
-        self.Convince = Convince
-        self.Entertain = Entertain
-        self.Negotiation = Negotiation
-        self.Sense_Motive = Sense_Motive
-        self.Intimidate = Intimidate
+        self.Convince = 0
+        self.Entertain = 0
+        self.Negotiation = 0
+        self.Sense_Motive = 0
+        self.Intimidate = 0
         # Practical Skills
-        self.Sneak = Sneak
-        self.Climb = Climb
-        self.Athletics = Athletics
-        self.Survival = Survival
+        self.Sneak = 0
+        self.Climb = 0
+        self.Athletics = 0
+        self.Survival = 0
         # Weapon Skills
-        self.Pistol = Pistol
-        self.Shotgun = Shotgun
-        self.SubMachine_Gun = SubMachine_Gun
-        self.Rifle = Rifle
-        self.Heavy_Weapon = Heavy_Weapon
-        self.Static_Weapon = Static_Weapon
-        self.Melee = Melee
-        self.Archery = Archery
-        self.Magic = Magic
+        self.Pistol = 0
+        self.Shotgun = 0
+        self.SubMachine_Gun = 0
+        self.Rifle = 0
+        self.Heavy_Weapon = 0
+        self.Static_Weapon = 0
+        self.Melee = 0
+        self.Archery = 0
+        self.Magic = 0
 
 
 class Description:
