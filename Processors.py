@@ -10,6 +10,12 @@ Update_Panels = True
 
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
     def process(self):
+        self.Player_Input()
+        for ent, (Position, Move, Destination) in self.world.get_components(Components.Position, Components.Can_Move, Components.Destination):
+            return
+        return
+
+    def Player_Input(self):
         for ent, (Player, Position, Move) in self.world.get_components(Components.Player, Components.Position,
                                                                        Components.Can_Move):
             key = tcod.console_wait_for_keypress(True)

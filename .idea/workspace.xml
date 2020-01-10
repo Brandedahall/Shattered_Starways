@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d03457f3-8f6d-4801-a990-16c4be4b22e0" name="Default Changelist" comment="Figured out how to use all of the keyboard letters. Added a little bit of combat.">
-      <change beforePath="$PROJECT_DIR$/.idea/Shattered Starways.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Shattered Starways.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d03457f3-8f6d-4801-a990-16c4be4b22e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Components.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Processors.py" beforeDir="false" afterPath="$PROJECT_DIR$/Processors.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,6 +37,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
+    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -145,6 +143,14 @@
       <workItem from="1578257776818" duration="1531000" />
       <workItem from="1578628077792" duration="293000" />
     </task>
+    <task id="LOCAL-00001" summary="Added movement and collision check.">
+      <created>1578628865666</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1578628865666</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -163,6 +169,11 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Added movement and collision check." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added movement and collision check." />
+  </component>
   <component name="WindowStateProjectService">
     <state x="872" y="359" key="#Inspections" timestamp="1578356909803">
       <screen x="0" y="0" width="2560" height="1400" />
@@ -172,14 +183,23 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state x="392" y="89" key="#Notifications/0.0.1600.860@0.0.1600.860" timestamp="1578550540208" />
+    <state x="1163" y="359" key="#TODO" timestamp="1578628862917">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1163" y="359" key="#TODO/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578628862917" />
     <state x="370" y="451" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1578354243819">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="370" y="451" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578354243819" />
-    <state x="454" y="25" width="1056" height="809" key="CommitChangelistDialog2" timestamp="1578555667128">
-      <screen x="0" y="0" width="1600" height="860" />
+    <state x="1027" y="557" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1578629886709">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1027" y="557" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578629886709" />
+    <state x="726" y="41" width="1056" height="809" key="CommitChangelistDialog2" timestamp="1578628864944">
+      <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="454" y="25" width="1056" height="809" key="CommitChangelistDialog2/0.0.1600.860@0.0.1600.860" timestamp="1578555667128" />
+    <state x="726" y="41" key="CommitChangelistDialog2/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578628864944" />
     <state x="914" y="475" key="FileChooserDialogImpl" timestamp="1578621626720">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

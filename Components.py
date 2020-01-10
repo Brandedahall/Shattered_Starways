@@ -80,6 +80,13 @@ class Move_Through:
         return
 
 
+class Destination:
+    def __init__(self, x, y):
+        self.X = x
+        self.Y = y
+        self.Path = {}
+
+
 class Can_See:
     def __init__(self, value):
         self.value = value
