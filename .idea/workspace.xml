@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d03457f3-8f6d-4801-a990-16c4be4b22e0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Shattered Starways.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Shattered Starways.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Components.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Processors.py" beforeDir="false" afterPath="$PROJECT_DIR$/Processors.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,6 +37,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
@@ -254,10 +257,10 @@
     </state>
     <state width="1557" height="276" key="GridCell.Tab.1.right/0.0.1600.860@0.0.1600.860" timestamp="1578562765715" />
     <state width="2539" height="492" key="GridCell.Tab.1.right/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578638622704" />
-    <state x="485" y="124" key="SettingsEditor" timestamp="1578621640285">
-      <screen x="0" y="0" width="2560" height="1400" />
+    <state x="303" y="76" key="SettingsEditor" timestamp="1578718163726">
+      <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state x="303" y="76" key="SettingsEditor/0.0.1600.860@0.0.1600.860" timestamp="1578556612695" />
+    <state x="303" y="76" key="SettingsEditor/0.0.1600.860@0.0.1600.860" timestamp="1578718163726" />
     <state x="485" y="124" key="SettingsEditor/0.0.2560.1400/2560.208.1920.1040/-1920.191.1920.1040@0.0.2560.1400" timestamp="1578621640285" />
     <state x="613" y="323" key="com.intellij.ide.util.TipDialog" timestamp="1578548840806">
       <screen x="0" y="0" width="1600" height="860" />

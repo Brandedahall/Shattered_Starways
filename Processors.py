@@ -95,25 +95,28 @@ class Render_Processor(esper.Processor):
     def process(self):
         for ren, (Scenery, Render, Position) in self.world.get_components(Components.Scenery, Components.Render,
                                                                           Components.Position):
-            if Render.value:
+            if Render.value and Render.Explored:
                 tcod.console_put_char_ex(0, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
 
         for ren, (Item, Render, Position) in self.world.get_components(Components.Item, Components.Render,
                                                                        Components.Position):
-            if Render.value:
+            if Render.value  and Render.Explored:
                 tcod.console_put_char_ex(0, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
 
         for ren, (Entity, Render, Position) in self.world.get_components(Components.Entity, Components.Render,
                                                                          Components.Position):
-            if Render.value:
+            if Render.value and Render.Explored:
                 tcod.console_put_char_ex(0, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
 
         for ren, (Player, Render, Position) in self.world.get_components(Components.Player, Components.Render,
                                                                          Components.Position):
-            if Render.value:
                 tcod.console_put_char_ex(0, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
 
         tcod.console_flush()  # Show the Console.
+
+    def Camera(self):
+        # Scrollable Camera
+        return
 
 
 class Combat_Processor(esper.Processor):
@@ -139,7 +142,7 @@ class Combat_Processor(esper.Processor):
 class FOV_Processor(esper.Processor):
     def process(self):
         for Player, (Player, Can_See, Position) in self.world.get_components(Components.Player, Components.Can_See,
-                                                                         Components.Position):
+                                                                             Components.Position):
             tcod.map_compute_fov(fov_map, Position.X, Position.Y, Can_See.Radius, True, 0)
             for Entity, (Pos, Render) in self.world.get_components(Components.Position, Components.Render):
                 visible = tcod.map_is_in_fov(fov_map, Pos.X, Pos.Y)
@@ -160,7 +163,7 @@ class FOV_Processor(esper.Processor):
 def Create_Characters(world):
     # Create a Player Character
     Player = world.create_entity(Components.Player(), Components.Position(random.randint(10, 30), random.randint(10, 20)),
-                                 Components.Render(True, '@', tcod.black),     # Add default parts to the PC
+                                 Components.Render(True, '@', tcod.black, False),     # Add default parts to the PC
                                  Components.Can_Move(True), Components.Health(10), Components.Alive(True),
                                  Components.Action_Points(5), Components.Speed(5),
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
@@ -173,16 +176,17 @@ def Create_Characters(world):
     # Creates a standard test character
 
     Test = world.create_entity(Components.Entity(), Components.Position(20, 20),
-                               Components.Render(True, 'T', tcod.black), Components.Health(5),
+                               Components.Render(True, 'T', tcod.black, False), Components.Health(5),
                                Components.Alive(True), Components.Inventory(), Components.Destination())
 
     for x in range(0, 80):
         for y in range(0, 40):
-            world.create_entity(Components.Position(x, y), Components.Render(True, '~', tcod.black),
+            world.create_entity(Components.Position(x, y), Components.Render(True, '~', tcod.black, True),
                                 Components.Scenery(), Components.Move_Through(True))
 
-    for ent, (Position, Render) in world.get_components(Components.Position, Components.Render):
-        tcod.map_set_properties(fov_map, Position.X, Position.Y, Render.value, True)
+    for ent, (Position, Render, Move_Through) in world.get_components(Components.Position, Components.Render,
+                                                                      Components.Move_Through):
+        tcod.map_set_properties(fov_map, Position.X, Position.Y, Render.value, Move_Through.value)
 
 
 def Transfer_Inventory(Source, Destination, Item):
