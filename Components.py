@@ -91,8 +91,9 @@ class Destination:
 class Can_See:
     def __init__(self, value):
         self.value = value
-        self.Radius = 5
+        self.Radius = 15
         self.Visible_To_Player = False
+
 
 class Visible:
     def __init__(self, value):
