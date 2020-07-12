@@ -11,9 +11,10 @@ SCREEN_HEIGHT = 60
 MAP_WIDTH = 100
 MAP_HEIGHT = 60
 
-ROOM_MAX_SIZE = 10
-ROOM_MIN_SIZE = 6
+ROOM_MAX_SIZE = 20
+ROOM_MIN_SIZE = 5
 MAX_ROOMS = 30
+MAX_ROOM_MONSTERS = 3
 
 color_dark_wall = tcod.Color(0, 0, 100)
 color_light_wall = tcod.Color(130, 110, 50)
@@ -56,7 +57,7 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
                                                                        Components.Can_Move):  # Only affects the player.
             key = tcod.console_wait_for_keypress(True)
             key_char = chr(key.c)
-            tcod.console_put_char(con, Position.X, Position.Y, ' ', tcod.BKGND_NONE)
+            #tcod.console_put_char(con, Position.X, Position.Y, ' ', tcod.BKGND_NONE)
             # Four cardinal directions
             if key.vk == tcod.KEY_KP8:
                 Destination = Position.X, Position.Y - 1
@@ -178,7 +179,15 @@ class FOV_Processor(esper.Processor):
                         else:
                             tcod.console_set_char_background(con, x, y, color_light_ground, tcod.BKGND_SET)
                         map[x][y].explored = True
+            for Entity, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
+                visible = tcod.map_is_in_fov(fov_map, Position.X, Position.Y)
+                if not visible:
+                    if not Render.In_FoV:
+                        Render.value = False
+                else:
+                    Render.value = True
         tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+        tcod.console_clear(con)
         tcod.console_flush()
 
 
@@ -194,6 +203,38 @@ def Create_Character(world, Player_X, Player_Y):
                                  Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10),
                                  Components.Move_Through(True), Components.Skills())
 
+
+def Create_Items(world, Item_X, Item_Y):
+
+    return
+
+
+def Create_Entities(world, Room):
+    num_monsters = tcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
+    for i in range(num_monsters):
+        # choose random spot for this monster
+        x = tcod.random_get_int(0, Room.x1 - 1, Room.x2 - 1)
+        y = tcod.random_get_int(0, Room.y1 - 1, Room.y2 - 1)
+
+        if tcod.random_get_int(0, 0, 100) < 80:  # 80% chance of getting an orc
+            # create an orc
+            world.create_entity(Components.Position(x, y), Components.Render(True, 'O', tcod.black, False),
+                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
+                                Components.Alive(True), Components.Name(Random_Name_Gen()))
+        else:
+            # create a troll
+            world.create_entity(Components.Position(x, y), Components.Render(True, 'T', tcod.black, False),
+                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
+                                Components.Alive(True), Components.Name(Random_Name_Gen()))
+    return
+
+
+def Random_Name_Gen():
+    Total_Name = ''
+    Prefix_List = [' ', ' ', ' ']
+    Suffix_List = [' ', ' ', ' ']
+
+    return Total_Name
 
 def make_map(world):
     global map, fov_map
@@ -230,6 +271,7 @@ def make_map(world):
             # this means there are no intersections, so this room is valid
             # "paint" it to the map's tiles
             Create_Rooms(new_room)
+            Create_Entities(world, new_room)
 
             # center coordinates of new room, will be useful later
             (new_x, new_y) = new_room.center()

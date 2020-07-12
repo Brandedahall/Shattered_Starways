@@ -16,7 +16,7 @@ class Render:
         self.Tile = Tile
         self.Background = Background
         self.Block_Sight = Block_Sight
-        self.Explored = False
+        self.In_FoV = False
 
 # Character / 'Unit' components
 
@@ -146,10 +146,7 @@ class Skills:
         self.SubMachine_Gun = 0
         self.Rifle = 0
         self.Heavy_Weapon = 0
-        self.Static_Weapon = 0
         self.Melee = 0
-        self.Archery = 0
-        self.Magic = 0
 
 
 class Description:
@@ -333,14 +330,17 @@ class Damage:
         self.Amount_of_Dice = Amount_of_Dice
         self.Dice_Size = Dice_Size
 
+
 class Damage_Flag:
     def __init__(self, Amount):
         self.Amount = Amount
+
 
 class Attacking:
     def __init__(self, Target_X, Target_Y):
         self.Target_X = Target_X
         self.Target_Y = Target_Y
+
 
 class Ammo_Capacity:
     def __init__(self, value):
