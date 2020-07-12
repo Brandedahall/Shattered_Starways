@@ -11,11 +11,11 @@ class Position:
 
 
 class Render:
-    def __init__(self, value, Tile, Background):
+    def __init__(self, value, Tile, Background, Block_Sight):
         self.value = value
         self.Tile = Tile
         self.Background = Background
-        self.Block_Sight = None
+        self.Block_Sight = Block_Sight
         self.Explored = False
 
 # Character / 'Unit' components
@@ -77,8 +77,8 @@ class Alive:
 
 
 class Move_Through:
-    def __init__(self, Value):
-        self.Value = Value
+    def __init__(self, value):
+        self.value = value
 
 
 class Destination:
