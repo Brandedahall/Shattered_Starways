@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d03457f3-8f6d-4801-a990-16c4be4b22e0" name="Default Changelist" comment="" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <list default="true" id="d03457f3-8f6d-4801-a990-16c4be4b22e0" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Shattered Starways.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Shattered Starways.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Processors.py" beforeDir="false" afterPath="$PROJECT_DIR$/Processors.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,26 +47,11 @@
       <recent name="C:\Users\Isabelle\Desktop\Shattered Starways" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="RunManager" selected="Python.Main">
     <configuration name="Main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Shattered Starways" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -130,6 +119,18 @@
         <item itemvalue="Python.Main" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -238,5 +239,9 @@
     </state>
     <state width="2539" height="216" key="GridCell.Tab.1.right/0.0.2560.1400/2560.191.1920.1040@0.0.2560.1400" timestamp="1594533891301" />
     <state width="1899" height="149" key="GridCell.Tab.1.right/0.0.2560.1400/2560.191.1920.1040@2560.191.1920.1040" timestamp="1593841607759" />
+    <state x="1159" y="334" key="SettingsEditor" timestamp="1594534226199">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1159" y="334" key="SettingsEditor/0.0.2560.1400/2560.191.1920.1040@0.0.2560.1400" timestamp="1594534226199" />
   </component>
 </project>

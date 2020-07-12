@@ -165,11 +165,12 @@ class FOV_Processor(esper.Processor):
                     visible = tcod.map_is_in_fov(fov_map, x, y)
                     wall = map[x][y].block_sight
                     if not visible:
+                        if map[x][y].explored:
                         # it's out of the player's FOV
-                        if wall:
-                            tcod.console_set_char_background(con, x, y, color_dark_wall, tcod.BKGND_SET)
-                        else:
-                            tcod.console_set_char_background(con, x, y, color_dark_ground, tcod.BKGND_SET)
+                            if wall:
+                                tcod.console_set_char_background(con, x, y, color_dark_wall, tcod.BKGND_SET)
+                            else:
+                                tcod.console_set_char_background(con, x, y, color_dark_ground, tcod.BKGND_SET)
                     else:
                         # it's visible
                         if wall:
@@ -185,17 +186,13 @@ def Create_Character(world, Player_X, Player_Y):
     # Create a Player Character
     Player = world.create_entity(Components.Player(),
                                  Components.Position(Player_X, Player_Y),
-                                 Components.Render(True, '@', tcod.black),  # Add default parts to the PC
+                                 Components.Render(True, '@', tcod.black, False),  # Add default parts to the PC
                                  Components.Can_Move(True), Components.Health(10), Components.Alive(True),
                                  Components.Action_Points(5), Components.Speed(5),
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
                                  Components.Left_Arm(10), Components.Left_Hand(5, True), Components.Right_Arm(10),
                                  Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10),
                                  Components.Move_Through(True), Components.Skills())
-
-
-def Transfer_Inventory(Source, Destination, Item):
-    return
 
 
 def make_map(world):
