@@ -17,6 +17,7 @@ class Render:
         self.Background = Background
         self.Block_Sight = Block_Sight
         self.In_FoV = False
+        self.Exists = True
 
 # Character / 'Unit' components
 
@@ -246,7 +247,7 @@ class Right_Leg:
 
 class Inventory:
     def __init__(self):
-        self.Inventory = {}
+        self.Inventory = []
 
 
 class Armour:

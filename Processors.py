@@ -16,10 +16,10 @@ ROOM_MIN_SIZE = 5
 MAX_ROOMS = 30
 MAX_ROOM_MONSTERS = 3
 
-color_dark_wall = tcod.Color(0, 0, 100)
-color_light_wall = tcod.Color(130, 110, 50)
-color_dark_ground = tcod.Color(50, 50, 150)
-color_light_ground = tcod.Color(200, 180, 50)
+color_dark_wall = (0, 0, 100)
+color_light_wall = (130, 110, 50)
+color_dark_ground = (50, 50, 150)
+color_light_ground = (200, 180, 50)
 
 FOV_ALGO = 0  #default FOV algorithm
 FOV_LIGHT_WALLS = True  #light walls or not
@@ -36,7 +36,6 @@ tcod.sys_set_fps(144)
 
 
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
-
     def process(self):
         self.Player_Input()
         for ent, (Position, Move, Destination) in self.world.get_components(Components.Position, Components.Can_Move,
@@ -49,15 +48,19 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
         # Checks for a number of entities which hold specific tags, (Hostile, Alien, etc) are on the current map.
         # Checks which co-ord is the closest (while passing a series of checks).
         # Uses A* pathing
-        return
+        for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position,
+                                                                        Components.Can_Move):
+            if Move:
+                return
+            else:
+                return
 
     def Player_Input(self):
         global fov_recompute
-        for ent, (Player, Position, Move) in self.world.get_components(Components.Player, Components.Position,
-                                                                       Components.Can_Move):  # Only affects the player.
+        for ent, (Player, Position, Move, Inventory) in self.world.get_components(Components.Player, Components.Position,
+                                                                                  Components.Can_Move, Components.Inventory):  # Only affects the player.
             key = tcod.console_wait_for_keypress(True)
             key_char = chr(key.c)
-            #tcod.console_put_char(con, Position.X, Position.Y, ' ', tcod.BKGND_NONE)
             # Four cardinal directions
             if key.vk == tcod.KEY_KP8:
                 Destination = Position.X, Position.Y - 1
@@ -88,22 +91,31 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
             elif key_char == "a":
                 self.Target_Control(Position.X, Position.Y, ent)
             elif key_char == 'k':
-                self.Pickup(Position.X, Position.Y)
+                self.Pickup(Position.X, Position.Y, Inventory.Inventory)
             elif key_char == "l":
                 self.Loot_Drop()
+            elif key_char == 't':
+                self.Show_Inventory(Inventory)
             elif key.vk == tcod.KEY_ESCAPE:
-                return 1
+                return 0
             elif key.vk == tcod.KEY_SPACE:
                 return
         fov_recompute = True
 
-    def Pickup(self, Player_Position_X, Player_Position_Y):
-        for Ent, (Position, Item, Render) in self.world.get_components(Components.Position, Components.Item, Components.Render):
+    def Pickup(self, Player_Position_X, Player_Position_Y, Player_Inventory):
+        for Ent, (Position, Entity, Render) in self.world.get_components(Components.Position, Components.Entity, Components.Render):
             if Render.value:
                 if Position.X == Player_Position_X and Position.Y == Player_Position_Y:
-                    self.world.delete_entity(Ent, True)
-                else:
-                    return
+                    Player_Inventory.append(Ent)
+                    Render.Exists = False
+
+    def Show_Inventory(self, Inventory):
+        i = 0
+        for x in Inventory.Inventory:
+            if self.world.try_component(x, Components.Name):
+                Name = self.world.component_for_entity(x, Components.Name)
+                tcod.console_print(con, 10, 10 + i, Name.value)
+                i += 1
 
     def Collision(self, Source_Position, Destination):
         if map[Destination[0]][Destination[1]].blocked:
@@ -117,7 +129,7 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
         return
 
     def Loot_Drop(self):
-        self.world.create_entity(Components.Item(), Components.Render(True, 'O', tcod.black),
+        self.world.create_entity(Components.Item(), Components.Render(True, 'O', tcod.black, False),
                                  Components.Position(random.randint(10, 30), random.randint(10, 20)))
         return
 
@@ -125,15 +137,19 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
 class AI_processor(esper.Processor):  # Deals with the AI choosing stuff to do in the game.
     def process(self):
         for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position, Components.Can_Move):
-
             return
 
 
 class Render_Processor(esper.Processor):
     def process(self):
-        for ren, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
+        for Non_Player, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
             if Render.value:
-                tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
+                if Render.Exists:
+                    tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
+        for Player, (Player, Render, Position) in self.world.get_components(Components.Player, Components.Render,
+                                                                            Components.Position):
+            tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
+        tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
 
 
 class Combat_Processor(esper.Processor):
@@ -166,18 +182,16 @@ class FOV_Processor(esper.Processor):
                     visible = tcod.map_is_in_fov(fov_map, x, y)
                     wall = map[x][y].block_sight
                     if not visible:
-                        if map[x][y].explored:
-                        # it's out of the player's FOV
+                        if map[x][y].explored:  # It's out of the player's FOV
                             if wall:
                                 tcod.console_set_char_background(con, x, y, color_dark_wall, tcod.BKGND_SET)
                             else:
                                 tcod.console_set_char_background(con, x, y, color_dark_ground, tcod.BKGND_SET)
-                    else:
-                        # it's visible
+                    else:  # It's visible
                         if wall:
-                            tcod.console_set_char_background(con, x, y, color_light_wall, tcod.BKGND_SET)
+                            tcod.console_set_char_background(con, x, y, (130, 110, 50), tcod.BKGND_SET)
                         else:
-                            tcod.console_set_char_background(con, x, y, color_light_ground, tcod.BKGND_SET)
+                            tcod.console_set_char_background(con, x, y, (200, 180, 50), tcod.BKGND_SET)
                         map[x][y].explored = True
             for Entity, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
                 visible = tcod.map_is_in_fov(fov_map, Position.X, Position.Y)
@@ -185,7 +199,8 @@ class FOV_Processor(esper.Processor):
                     if not Render.In_FoV:
                         Render.value = False
                 else:
-                    Render.value = True
+                    if Render.Exists:
+                        Render.value = True
         tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
         tcod.console_clear(con)
         tcod.console_flush()
@@ -201,7 +216,7 @@ def Create_Character(world, Player_X, Player_Y):
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
                                  Components.Left_Arm(10), Components.Left_Hand(5, True), Components.Right_Arm(10),
                                  Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10),
-                                 Components.Move_Through(True), Components.Skills())
+                                 Components.Move_Through(True), Components.Skills(), Components.Inventory())
 
 
 def Create_Items(world, Item_X, Item_Y):
@@ -218,23 +233,24 @@ def Create_Entities(world, Room):
 
         if tcod.random_get_int(0, 0, 100) < 80:  # 80% chance of getting an orc
             # create an orc
-            world.create_entity(Components.Position(x, y), Components.Render(True, 'O', tcod.black, False),
+            world.create_entity(Components.Entity(), Components.Position(x, y), Components.Render(True, 'O', tcod.black, False),
                                 Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
-                                Components.Alive(True), Components.Name(Random_Name_Gen()))
+                                Components.Alive(True), Components.Name('Orc'))
         else:
             # create a troll
-            world.create_entity(Components.Position(x, y), Components.Render(True, 'T', tcod.black, False),
+            world.create_entity(Components.Entity(), Components.Position(x, y), Components.Render(True, 'T', tcod.black, False),
                                 Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
-                                Components.Alive(True), Components.Name(Random_Name_Gen()))
+                                Components.Alive(True), Components.Name('Troll'))
     return
 
 
 def Random_Name_Gen():
     Total_Name = ''
-    Prefix_List = [' ', ' ', ' ']
-    Suffix_List = [' ', ' ', ' ']
+    Prefix_List = {' ', ' ', ' '}
+    Suffix_List = {' ', ' ', ' '}
 
     return Total_Name
+
 
 def make_map(world):
     global map, fov_map
