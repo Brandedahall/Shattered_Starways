@@ -1,9 +1,10 @@
 import random
-
 import tcod
-
+import tcod.console
 import Components
 import esper
+import math
+import numpy as np
 from Classes import Tile, Rect
 
 SCREEN_WIDTH = 100
@@ -33,36 +34,47 @@ fov_recompute = True
 font_path = 'arial10x10.png'
 font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
 tcod.console_set_custom_font('arial10x10.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
-con = tcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
+con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
 tcod.sys_set_fps(144)
 
 
 #############################################
-Player_Information = tcod.console_new(60, 20)
-
-
+Player_Information = tcod.console_new(20, 60)
 #############################################
 
 
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
     def process(self):
         self.Player_Input()
-        for ent, (Position, Move, Destination) in self.world.get_components(Components.Position, Components.Can_Move,
-                                                                            Components.Destination):
-            AI_processor()
-            return
-        return
 
-    def Entity_Move(self, Position):
+    def Distance(self, TargetX, TargetY):
+        for Entity, (Entity, Position, Move, Render) in self.world.get_components(Components.Entity, Components.Position,
+                                                                                  Components.Can_Move, Components.Render):
+            if Render.Exists and distance_to(Position.X, Position.Y, TargetX, TargetY) <= 5:
+                if tcod.map_is_in_fov(fov_map, Position.X, Position.Y):
+                    Position.X, Position.Y = self.Entity_Move(Position.X, Position.Y, TargetX, TargetY)
+
+    def Entity_Move(self, Self_X, Self_Y, Target_x, Target_y):
         # Checks for a number of entities which hold specific tags, (Hostile, Alien, etc) are on the current map.
-        # Checks which co-ord is the closest (while passing a series of checks).
         # Uses A* pathing
-        for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position,
-                                                                        Components.Can_Move):
-            if Move:
-                return
+        fov = tcod.map_new(MAP_WIDTH, MAP_HEIGHT)
+        for y1 in range(MAP_HEIGHT):
+            for x1 in range(MAP_WIDTH):
+                tcod.map_set_properties(fov, x1, y1, not map[x1][y1].block_sight, not map[x1][y1].blocked)
+
+        tcod.map_set_properties(fov, Self_X, Self_Y, True, False)
+
+        My_Path = tcod.path_new_using_map(fov, 1.41)
+
+        tcod.path_compute(My_Path, Self_X, Self_Y, Target_x, Target_y)
+
+        if not tcod.path_is_empty(My_Path) and tcod.path_size(My_Path) < 25:
+            x, y = tcod.path_walk(My_Path, True)
+            if x or y:
+                return x, y
             else:
-                return
+                return Self_X, Self_Y
+        tcod.path_delete(My_Path)
 
     def Player_Input(self):
         global fov_recompute
@@ -107,10 +119,7 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
                 self.Loot_Drop()
             elif key_char == 't':
                 self.Show_Inventory(Inventory)
-            elif key.vk == tcod.KEY_ESCAPE:
-                return 0
-            elif key.vk == tcod.KEY_SPACE:
-                return
+            self.Distance(Position.X, Position.Y)
         fov_recompute = True
 
     def Pickup(self, Player_Position_X, Player_Position_Y, Player_Inventory):
@@ -148,9 +157,13 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
 
 class AI_processor(esper.Processor):  # Deals with the AI choosing stuff to do in the game.
     def process(self):
-        for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position,
-                                                                        Components.Can_Move):
-            return
+        return
+
+
+def distance_to(selfX, selfY, targetX, targetY):
+    dx = targetX - selfX
+    dy = targetY - selfY
+    return math.sqrt(dx ** 2 + dy ** 2)
 
 
 class Render_Processor(esper.Processor):
@@ -278,13 +291,13 @@ def Create_Entities(world, Room):
             world.create_entity(Components.Entity(), Components.Position(x, y),
                                 Components.Render(True, 'O', tcod.black, False),
                                 Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5), 5),
-                                Components.Alive(True), Components.Name('Orc'))
+                                Components.Alive(True), Components.Name('Orc'), Components.Move_Through(False))
         else:
             # create a troll
             world.create_entity(Components.Entity(), Components.Position(x, y),
                                 Components.Render(True, 'T', tcod.black, False),
                                 Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5), 5),
-                                Components.Alive(True), Components.Name('Troll'))
+                                Components.Alive(True), Components.Name('Troll'), Components.Move_Through(False))
     return
 
 
@@ -297,7 +310,7 @@ def Random_Name_Gen():
 
 
 def make_map(world):
-    global map, fov_map
+    global map, fov_map, Astar_Map
 
     # fill map with "blocked" tiles
 
@@ -361,9 +374,12 @@ def make_map(world):
             num_rooms += 1
 
     fov_map = tcod.map_new(MAP_WIDTH, MAP_HEIGHT)
+    Astar_Map = np.ones((MAP_WIDTH, MAP_HEIGHT), dtype=np.int8, order="F")
     for y in range(MAP_HEIGHT):
         for x in range(MAP_WIDTH):
             tcod.map_set_properties(fov_map, x, y, not map[x][y].block_sight, not map[x][y].blocked)
+            if not map[x][y].blocked:
+                Astar_Map[x][y] = 1
 
 
 def Create_Rooms(room):
@@ -388,5 +404,4 @@ def create_v_tunnel(y1, y2, x):
     for y in range(min(y1, y2), max(y1, y2) + 1):
         map[x][y].blocked = False
         map[x][y].block_sight = False
-
 

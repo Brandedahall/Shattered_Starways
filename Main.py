@@ -1,4 +1,5 @@
 import tcod
+import tcod.console
 import tcod.event
 import Classes
 import Processors
@@ -27,7 +28,6 @@ world.add_processor(Keyboard_Processor)
 world.add_processor(Combat_Processor)
 
 Processors.make_map(world)
-
 
 
 ###########################
