@@ -17,11 +17,6 @@ ROOM_MIN_SIZE = 5
 MAX_ROOMS = 30
 MAX_ROOM_MONSTERS = 3
 
-color_dark_wall = (0, 0, 100)
-color_light_wall = (130, 110, 50)
-color_dark_ground = (50, 50, 150)
-color_light_ground = (200, 180, 50)
-
 BAR_WIDTH = 20
 PANEL_HEIGHT = 7
 PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
@@ -31,20 +26,9 @@ FOV_LIGHT_WALLS = True  # light walls or not
 
 fov_recompute = True
 
-tcod.console_set_custom_font('TiledFont.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD, 32, 10)
-con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
+
+con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")  # Console
 tcod.sys_set_fps(144)
-
-
-def load_customfont():
-    # The index of the first custom tile in the file
-    a = 256
-
-    # The "y" is the row index, here we load the sixth row in the font file. Increase the "6" to load any new rows from the file
-    for y in range(5, 6):
-        tcod.console_map_ascii_codes_to_font(a, 32, 0, y)
-        a += 32
-
 
 #############################################
 Player_Information = tcod.console_new(20, 60)
@@ -52,7 +36,7 @@ Player_Information = tcod.console_new(20, 60)
 
 
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
-    def process(self):
+    def process(self, root_console):
         self.Player_Input()
         self.Distance()
 
@@ -183,14 +167,15 @@ def distance_to(selfX, selfY, targetX, targetY):
 
 class Render_Processor(esper.Processor):
     def process(self):
-        for Non_Player, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
-            if Render.value:
-                if Render.Exists:
-                    tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
+        # for Non_Player, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
+        #    if Render.value:
+        #        if Render.Exists:
+        #            con.print(Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
         for Player, (Player, Render, Position) in self.world.get_components(Components.Player, Components.Render,
                                                                             Components.Position):
-            tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
-        tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+            con.print(Position.X, Position.Y, '@', tcod.white, Render.Background)
+        con.blit(con, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+        con.clear()
         self.Update_Panels()
 
     def Update_Panels(self):
@@ -254,14 +239,14 @@ class FOV_Processor(esper.Processor):
                     if not visible:
                         if map[x][y].explored:  # It's out of the player's FOV
                             if wall:
-                                tcod.console_set_char_background(con, x, y, color_dark_wall, tcod.BKGND_SET)
+                                con.print(x, y, '#', tcod.grey, tcod.black)
                             else:
-                                tcod.console_set_char_background(con, x, y, color_dark_ground, tcod.BKGND_SET)
+                                con.print(x, y, ' ', tcod.grey, tcod.black)
                     else:  # It's visible
                         if wall:
-                            tcod.console_set_char_background(con, x, y, (130, 110, 50), tcod.BKGND_SET)
+                            con.print(x, y, '#', tcod.white, tcod.black)
                         else:
-                            tcod.console_set_char_background(con, x, y, (200, 180, 50), tcod.BKGND_SET)
+                            con.print(x, y, ' ', tcod.white, tcod.black)
                         map[x][y].explored = True
             for Entity, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
                 visible = tcod.map_is_in_fov(fov_map, Position.X, Position.Y)
@@ -271,9 +256,8 @@ class FOV_Processor(esper.Processor):
                 else:
                     if Render.Exists:
                         Render.value = True
-        tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
-        tcod.console_clear(con)
-        tcod.console_flush()
+        con.blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+
 
 
 def Create_Character(world, Player_X, Player_Y):

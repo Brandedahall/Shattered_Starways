@@ -1,7 +1,4 @@
 import tcod
-import tcod.console
-import tcod.event
-import Classes
 import Processors
 import esper
 
@@ -9,6 +6,10 @@ import esper
 # Basic system information
 SCREEN_WIDTH = 100
 SCREEN_HEIGHT = 60
+
+tileset = tcod.tileset.load_tilesheet(
+        "TiledFont.png", 32, 10, tcod.tileset.CHARMAP_CP437
+    )
 
 ###########################
 # Esper Information
@@ -20,20 +21,21 @@ AI_processor = Processors.AI_processor()
 Keyboard_Processor = Processors.Movement_Processor()
 Combat_Processor = Processors.Combat_Processor()
 
-world.add_processor(FOV_Processor, 1)
-world.add_processor(Render_Processor, 3)
-world.add_processor(AI_processor, 2)
+world.add_processor(FOV_Processor, 2)
+world.add_processor(Render_Processor, 1)
+world.add_processor(AI_processor, 3)
 world.add_processor(Keyboard_Processor)
 world.add_processor(Combat_Processor)
 
-Processors.load_customfont()
 Processors.make_map(world)
 
 ###########################
 
-with tcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'Shattered Starways', False):
-    while not tcod.console_is_window_closed():
-        world.process()
+with tcod.context.new_terminal(SCREEN_WIDTH, SCREEN_HEIGHT, title="Shattered Starways", vsync=True,) as context:
+    root_console = tcod.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")
+    while True:
+        context.present(root_console)
+        world.process(root_console)
         for event in tcod.event.wait():
             if event.type == "QUIT":
                 raise SystemExit()
