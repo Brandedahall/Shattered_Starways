@@ -21,10 +21,10 @@ AI_processor = Processors.AI_processor()
 Keyboard_Processor = Processors.Movement_Processor()
 Combat_Processor = Processors.Combat_Processor()
 
-world.add_processor(FOV_Processor, 2)
+world.add_processor(FOV_Processor, 3)
 world.add_processor(Render_Processor, 1)
-world.add_processor(AI_processor, 3)
-world.add_processor(Keyboard_Processor)
+world.add_processor(AI_processor, 4)
+world.add_processor(Keyboard_Processor, 2)
 world.add_processor(Combat_Processor)
 
 Processors.make_map(world)
@@ -34,6 +34,7 @@ Processors.make_map(world)
 with tcod.context.new_terminal(SCREEN_WIDTH, SCREEN_HEIGHT, title="Shattered Starways", vsync=True,) as context:
     root_console = tcod.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")
     Render_Processor.set_console(root_console)
+    FOV_Processor.set_console(root_console)
     while True:
         world.process()
         context.present(root_console)

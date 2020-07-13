@@ -26,7 +26,8 @@ FOV_LIGHT_WALLS = True  # light walls or not
 
 fov_recompute = True
 
-con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")  # Console
+con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
+
 tcod.sys_set_fps(144)
 
 #############################################
@@ -165,6 +166,9 @@ def distance_to(selfX, selfY, targetX, targetY):
 
 
 class Render_Processor(esper.Processor):
+    def set_console(self, console):
+        self.console = console
+
     def process(self):
         # for Non_Player, (Render, Position) in self.world.get_components(Components.Render, Components.Position):
         #    if Render.value:
@@ -173,40 +177,7 @@ class Render_Processor(esper.Processor):
         for Player, (Player, Render, Position) in self.world.get_components(Components.Player, Components.Render,
                                                                             Components.Position):
             con.print(Position.X, Position.Y, '@', tcod.white, Render.Background)
-        con.blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
-        con.clear()
-        self.Update_Panels()
-
-    def set_console(self, console):
-        con.Console = console
-        return
-
-    def Update_Panels(self):
-        global HP, Max_HP
-        tcod.console_set_default_background(Player_Information, tcod.black)
-        tcod.console_clear(Player_Information)
-        for Player, (Player, Health) in self.world.get_components(Components.Player, Components.Health):
-            HP = Health.value
-            Max_HP = Health.Max
-        self.Render_Bar(1, 1, BAR_WIDTH, 'HP', HP, Max_HP, tcod.light_red, tcod.darker_red)
-        tcod.console_blit(Player_Information, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, con, 0, PANEL_Y)
-
-    def Render_Bar(self, x, y, total_width, name, value, maximum, bar_colour, back_colour):
-        bar_width = int(float(value) / maximum * total_width)
-
-        # Render background
-        tcod.console_set_default_background(Player_Information, back_colour)
-        tcod.console_rect(Player_Information, x, y, total_width, 1, False, tcod.BKGND_SCREEN)
-
-        # Render bar
-        tcod.console_set_default_background(Player_Information, bar_colour)
-        if bar_width > 0:
-            tcod.console_rect(Player_Information, x, y, bar_width, 1, False, tcod.BKGND_SCREEN)
-
-        # Render center text with values
-        tcod.console_set_default_foreground(Player_Information, tcod.white)
-        stats = name + ': ' + str(value) + '/' + str(maximum)
-        tcod.console_print_ex(Player_Information, int(x + total_width / 2), y, tcod.BKGND_NONE, tcod.CENTER, stats)
+        con.blit(self.console, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 class Combat_Processor(esper.Processor):
@@ -229,6 +200,9 @@ class Combat_Processor(esper.Processor):
 
 
 class FOV_Processor(esper.Processor):
+    def set_console(self, console):
+        self.console = console
+
     def process(self):
         global fov_map, fov_recompute
         if fov_recompute:
@@ -259,7 +233,6 @@ class FOV_Processor(esper.Processor):
                 else:
                     if Render.Exists:
                         Render.value = True
-        con.blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
 
 
 def Create_Character(world, Player_X, Player_Y):
