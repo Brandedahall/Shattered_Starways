@@ -26,7 +26,6 @@ FOV_LIGHT_WALLS = True  # light walls or not
 
 fov_recompute = True
 
-
 con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")  # Console
 tcod.sys_set_fps(144)
 
@@ -36,7 +35,7 @@ Player_Information = tcod.console_new(20, 60)
 
 
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
-    def process(self, root_console):
+    def process(self):
         self.Player_Input()
         self.Distance()
 
@@ -174,9 +173,13 @@ class Render_Processor(esper.Processor):
         for Player, (Player, Render, Position) in self.world.get_components(Components.Player, Components.Render,
                                                                             Components.Position):
             con.print(Position.X, Position.Y, '@', tcod.white, Render.Background)
-        con.blit(con, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+        con.blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
         con.clear()
         self.Update_Panels()
+
+    def set_console(self, console):
+        con.Console = console
+        return
 
     def Update_Panels(self):
         global HP, Max_HP
@@ -257,7 +260,6 @@ class FOV_Processor(esper.Processor):
                     if Render.Exists:
                         Render.value = True
         con.blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
-
 
 
 def Create_Character(world, Player_X, Player_Y):
