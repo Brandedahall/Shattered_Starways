@@ -21,8 +21,12 @@ color_light_wall = (130, 110, 50)
 color_dark_ground = (50, 50, 150)
 color_light_ground = (200, 180, 50)
 
-FOV_ALGO = 0  #default FOV algorithm
-FOV_LIGHT_WALLS = True  #light walls or not
+BAR_WIDTH = 20
+PANEL_HEIGHT = 7
+PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
+
+FOV_ALGO = 0  # default FOV algorithm
+FOV_LIGHT_WALLS = True  # light walls or not
 
 fov_recompute = True
 
@@ -31,6 +35,11 @@ font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
 tcod.console_set_custom_font('arial10x10.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
 con = tcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
 tcod.sys_set_fps(144)
+
+
+#############################################
+Player_Information = tcod.console_new(60, 20)
+
 
 #############################################
 
@@ -57,8 +66,10 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
 
     def Player_Input(self):
         global fov_recompute
-        for ent, (Player, Position, Move, Inventory) in self.world.get_components(Components.Player, Components.Position,
-                                                                                  Components.Can_Move, Components.Inventory):  # Only affects the player.
+        for ent, (Player, Position, Move, Inventory) in self.world.get_components(Components.Player,
+                                                                                  Components.Position,
+                                                                                  Components.Can_Move,
+                                                                                  Components.Inventory):  # Only affects the player.
             key = tcod.console_wait_for_keypress(True)
             key_char = chr(key.c)
             # Four cardinal directions
@@ -103,7 +114,8 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
         fov_recompute = True
 
     def Pickup(self, Player_Position_X, Player_Position_Y, Player_Inventory):
-        for Ent, (Position, Entity, Render) in self.world.get_components(Components.Position, Components.Entity, Components.Render):
+        for Ent, (Position, Entity, Render) in self.world.get_components(Components.Position, Components.Entity,
+                                                                         Components.Render):
             if Render.value:
                 if Position.X == Player_Position_X and Position.Y == Player_Position_Y:
                     Player_Inventory.append(Ent)
@@ -136,7 +148,8 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
 
 class AI_processor(esper.Processor):  # Deals with the AI choosing stuff to do in the game.
     def process(self):
-        for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position, Components.Can_Move):
+        for ent1, (Entity, Position, Move) in self.world.get_components(Components.Entity, Components.Position,
+                                                                        Components.Can_Move):
             return
 
 
@@ -150,11 +163,40 @@ class Render_Processor(esper.Processor):
                                                                             Components.Position):
             tcod.console_put_char_ex(con, Position.X, Position.Y, Render.Tile, tcod.white, Render.Background)
         tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)  # Show the Console.
+        self.Update_Panels()
+
+    def Update_Panels(self):
+        global HP, Max_HP
+        tcod.console_set_default_background(Player_Information, tcod.black)
+        tcod.console_clear(Player_Information)
+        for Player, (Player, Health) in self.world.get_components(Components.Player, Components.Health):
+            HP = Health.value
+            Max_HP = Health.Max
+        self.Render_Bar(1, 1, BAR_WIDTH, 'HP', HP, Max_HP, tcod.light_red, tcod.darker_red)
+        tcod.console_blit(Player_Information, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, con, 0, PANEL_Y)
+
+    def Render_Bar(self, x, y, total_width, name, value, maximum, bar_colour, back_colour):
+        bar_width = int(float(value) / maximum * total_width)
+
+        # Render background
+        tcod.console_set_default_background(Player_Information, back_colour)
+        tcod.console_rect(Player_Information, x, y, total_width, 1, False, tcod.BKGND_SCREEN)
+
+        # Render bar
+        tcod.console_set_default_background(Player_Information, bar_colour)
+        if bar_width > 0:
+            tcod.console_rect(Player_Information, x, y, bar_width, 1, False, tcod.BKGND_SCREEN)
+
+        # Render center text with values
+        tcod.console_set_default_foreground(Player_Information, tcod.white)
+        stats = name + ': ' + str(value) + '/' + str(maximum)
+        tcod.console_print_ex(Player_Information, int(x + total_width / 2), y, tcod.BKGND_NONE, tcod.CENTER, stats)
 
 
 class Combat_Processor(esper.Processor):
     def process(self):
-        for ent, (Attacking) in self.world.get_components(Components.Attacking):  # Iterates through and finds an entity which is actually attacking.
+        for ent, (Attacking) in self.world.get_components(
+                Components.Attacking):  # Iterates through and finds an entity which is actually attacking.
             # Iterates through every other entity and checks whether they own a position and a renderable component.
             for target, (Position, Render) in self.world.get_components(Components.Position, Components.Render):
                 # If the position of the entity is the same as the target position, it'll figure out if it can be hit.
@@ -211,7 +253,7 @@ def Create_Character(world, Player_X, Player_Y):
     Player = world.create_entity(Components.Player(),
                                  Components.Position(Player_X, Player_Y),
                                  Components.Render(True, '@', tcod.black, False),  # Add default parts to the PC
-                                 Components.Can_Move(True), Components.Health(10), Components.Alive(True),
+                                 Components.Can_Move(True), Components.Health(10, 10), Components.Alive(True),
                                  Components.Action_Points(5), Components.Speed(5),
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
                                  Components.Left_Arm(10), Components.Left_Hand(5, True), Components.Right_Arm(10),
@@ -233,13 +275,15 @@ def Create_Entities(world, Room):
 
         if tcod.random_get_int(0, 0, 100) < 80:  # 80% chance of getting an orc
             # create an orc
-            world.create_entity(Components.Entity(), Components.Position(x, y), Components.Render(True, 'O', tcod.black, False),
-                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
+            world.create_entity(Components.Entity(), Components.Position(x, y),
+                                Components.Render(True, 'O', tcod.black, False),
+                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5), 5),
                                 Components.Alive(True), Components.Name('Orc'))
         else:
             # create a troll
-            world.create_entity(Components.Entity(), Components.Position(x, y), Components.Render(True, 'T', tcod.black, False),
-                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5)),
+            world.create_entity(Components.Entity(), Components.Position(x, y),
+                                Components.Render(True, 'T', tcod.black, False),
+                                Components.Can_Move(True), Components.Health(tcod.random_get_int(0, 3, 5), 5),
                                 Components.Alive(True), Components.Name('Troll'))
     return
 
@@ -344,3 +388,5 @@ def create_v_tunnel(y1, y2, x):
     for y in range(min(y1, y2), max(y1, y2) + 1):
         map[x][y].blocked = False
         map[x][y].block_sight = False
+
+

@@ -43,8 +43,9 @@ class Item:
 
 
 class Health:
-    def __init__(self, value):
+    def __init__(self, value, Max):
         self.value = value
+        self.Max = Max
 
 
 class Wounds:
