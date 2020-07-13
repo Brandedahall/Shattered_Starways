@@ -31,11 +31,19 @@ FOV_LIGHT_WALLS = True  # light walls or not
 
 fov_recompute = True
 
-font_path = 'arial10x10.png'
-font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
-tcod.console_set_custom_font('arial10x10.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
+tcod.console_set_custom_font('TiledFont.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD, 32, 10)
 con = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT)  # Console
 tcod.sys_set_fps(144)
+
+
+def load_customfont():
+    # The index of the first custom tile in the file
+    a = 256
+
+    # The "y" is the row index, here we load the sixth row in the font file. Increase the "6" to load any new rows from the file
+    for y in range(5, 6):
+        tcod.console_map_ascii_codes_to_font(a, 32, 0, y)
+        a += 32
 
 
 #############################################
@@ -46,13 +54,18 @@ Player_Information = tcod.console_new(20, 60)
 class Movement_Processor(esper.Processor):  # Works with Keyboard input
     def process(self):
         self.Player_Input()
+        self.Distance()
 
-    def Distance(self, TargetX, TargetY):
+    def Distance(self):
+        TargetX, TargetY = 0, 0
+        for Player, (Player, Position) in self.world.get_components(Components.Player, Components.Position):
+            TargetX, TargetY = Position.X, Position.Y
+
         for Entity, (Entity, Position, Move, Render) in self.world.get_components(Components.Entity, Components.Position,
                                                                                   Components.Can_Move, Components.Render):
-            if Render.Exists and distance_to(Position.X, Position.Y, TargetX, TargetY) <= 5:
-                if tcod.map_is_in_fov(fov_map, Position.X, Position.Y):
-                    Position.X, Position.Y = self.Entity_Move(Position.X, Position.Y, TargetX, TargetY)
+            if Render.Exists and distance_to(Position.X, Position.Y, TargetX, TargetY) <= 5 and tcod.map_is_in_fov(
+                    fov_map, Position.X, Position.Y):
+                Position.X, Position.Y = self.Entity_Move(Position.X, Position.Y, TargetX, TargetY)
 
     def Entity_Move(self, Self_X, Self_Y, Target_x, Target_y):
         # Checks for a number of entities which hold specific tags, (Hostile, Alien, etc) are on the current map.
@@ -62,7 +75,9 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
             for x1 in range(MAP_WIDTH):
                 tcod.map_set_properties(fov, x1, y1, not map[x1][y1].block_sight, not map[x1][y1].blocked)
 
-        tcod.map_set_properties(fov, Self_X, Self_Y, True, False)
+        for Entity, (Position, Blocks) in self.world.get_components(Components.Position, Components.Move_Through):
+            if Blocks and not self.world.has_component(Entity, Components.Player):
+                tcod.map_set_properties(fov, Position.X, Position.Y, True, False)
 
         My_Path = tcod.path_new_using_map(fov, 1.41)
 
@@ -71,10 +86,11 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
         if not tcod.path_is_empty(My_Path) and tcod.path_size(My_Path) < 25:
             x, y = tcod.path_walk(My_Path, True)
             if x or y:
+                tcod.path_delete(My_Path)
                 return x, y
-            else:
-                return Self_X, Self_Y
-        tcod.path_delete(My_Path)
+        else:
+            tcod.path_delete(My_Path)
+            return Self_X, Self_Y
 
     def Player_Input(self):
         global fov_recompute
@@ -119,13 +135,12 @@ class Movement_Processor(esper.Processor):  # Works with Keyboard input
                 self.Loot_Drop()
             elif key_char == 't':
                 self.Show_Inventory(Inventory)
-            self.Distance(Position.X, Position.Y)
         fov_recompute = True
 
     def Pickup(self, Player_Position_X, Player_Position_Y, Player_Inventory):
         for Ent, (Position, Entity, Render) in self.world.get_components(Components.Position, Components.Entity,
                                                                          Components.Render):
-            if Render.value:
+            if Render.value and Render.Exists:
                 if Position.X == Player_Position_X and Position.Y == Player_Position_Y:
                     Player_Inventory.append(Ent)
                     Render.Exists = False
@@ -271,7 +286,7 @@ def Create_Character(world, Player_X, Player_Y):
                                  Components.Can_See(True), Components.Can_Talk(True), Components.Head(10),
                                  Components.Left_Arm(10), Components.Left_Hand(5, True), Components.Right_Arm(10),
                                  Components.Right_Hand(5, True), Components.Left_Leg(10), Components.Right_Leg(10),
-                                 Components.Move_Through(True), Components.Skills(), Components.Inventory())
+                                 Components.Move_Through(False), Components.Skills(), Components.Inventory())
 
 
 def Create_Items(world, Item_X, Item_Y):
@@ -344,7 +359,7 @@ def make_map(world):
             # this means there are no intersections, so this room is valid
             # "paint" it to the map's tiles
             Create_Rooms(new_room)
-            Create_Entities(world, new_room)
+            # Create_Entities(world, new_room)
 
             # center coordinates of new room, will be useful later
             (new_x, new_y) = new_room.center()

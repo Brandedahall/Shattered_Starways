@@ -8,5 +8,5 @@ setup(
     license='',
     author='Isabelle',
     author_email='',
-    description='', install_requires=['tcod']
+    description='', install_requires=['tcod', 'numpy']
 )
